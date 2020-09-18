@@ -5,8 +5,11 @@ import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @EnableBinding(MyMessageChannels.class)
 public class MyPublisher {
 
@@ -16,7 +19,8 @@ public class MyPublisher {
         this.messageChannels = messageChannels;
     }
 
-    public String publishMessage(String message) {
+    @PostMapping("/publish")
+    public String publishMessage(@RequestBody String message) {
         messageChannels.initiate().send(new GenericMessage<>(message));
         return "Done";
     }
