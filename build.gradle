@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.1.9.RELEASE'
@@ -19,7 +21,7 @@ dependencyManagement {
 	imports {
 		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR2'
 		mavenBom 'io.pivotal.spring.cloud:spring-cloud-services-dependencies:2.1.7.RELEASE'
-		mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+		mavenBom SpringBootPlugin.BOM_COORDINATES
 	}
 }
 
@@ -44,8 +46,8 @@ dependencies {
 	//kafka
 	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
 	implementation 'org.springframework.cloud:spring-cloud-stream'
-	testImplementation 'org.springframework.cloud:spring-cloud-stream-binder-test'
 
+	testImplementation 'org.springframework.cloud:spring-cloud-stream-binder-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.cloud:spring-cloud-stream-test-support'
 }
