@@ -1,0 +1,87 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.1.9.RELEASE'
+	id 'maven-publish'
+	id 'jacoco'
+	id 'org.sonarqube' version '2.7'
+}
+
+group = 'com.battybuilds'
+
+repositories {
+	mavenCentral()
+	maven { url 'http://repo.spring.io/plugins-release' }
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR2'
+		mavenBom 'io.pivotal.spring.cloud:spring-cloud-services-dependencies:2.1.7.RELEASE'
+		mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+	}
+}
+
+dependencies {
+
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
+	implementation 'io.pivotal.spring.cloud:spring-cloud-services-starter-config-client'
+
+	//security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation "io.springfox:springfox-swagger2:2.9.2"
+
+	//kafka
+	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
+	implementation 'org.springframework.cloud:spring-cloud-stream'
+	testImplementation 'org.springframework.cloud:spring-cloud-stream-binder-test'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.cloud:spring-cloud-stream-test-support'
+}
+
+
+jacocoTestReport {
+	reports {
+		html.destination file("${buildDir}/jacocoHtml")
+	}
+	afterEvaluate {
+		classDirectories.from = files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					'com/ford/turbo/listener/common/*'
+			])
+		})
+	}
+}
+
+jacocoTestCoverageVerification {
+	afterEvaluate {
+		classDirectories.from = files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					'com/ford/turbo/listener/common/*'
+			])
+		})
+	}
+	violationRules {
+		rule {
+			limit {
+				counter = 'LINE'
+				minimum = 0.2
+			}
+		}
+	}
+}
+
+check.dependsOn jacocoTestCoverageVerification
+test.finalizedBy jacocoTestReport
+
