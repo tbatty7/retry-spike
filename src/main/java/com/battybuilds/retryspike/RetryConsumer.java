@@ -1,7 +1,9 @@
 package com.battybuilds.retryspike;
 
+import com.battybuilds.retryspike.model.MyMessageBody;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 
@@ -16,9 +18,10 @@ public class RetryConsumer {
     }
 
     @StreamListener(target = MyMessageChannels.PULL_RETRY, condition = "headers['times_called'] < 3")
-    public void initiateRetry(byte[] message, @Headers MessageHeaders headers) {
+    public void initiateRetry(Message<MyMessageBody> message, @Headers MessageHeaders headers) {
         System.out.println("-------------counter----------- " + counter++);
-        retryService.makeRetryCall(message, headers);
+        MyMessageBody payload = message.getPayload();
+        retryService.makeRetryCall(payload, headers);
     }
 
     @StreamListener(target = MyMessageChannels.PULL_RETRY, condition = "headers['times_called'] > 2")

@@ -1,5 +1,6 @@
 package com.battybuilds.retryspike;
 
+import com.battybuilds.retryspike.model.MyMessageBody;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessageHeaders;
@@ -24,11 +25,11 @@ public class MyServiceWithRetry {
         this.messageChannels = messageChannels;
     }
 
-    public void makeInitialExternalCall(byte[] messageRequest) {
+    public void makeInitialExternalCall(MyMessageBody messageRequest) {
         callWithHeaders(messageRequest, buildInitialMessageHeaders());
     }
 
-    public void makeRetryCall(byte[] messageRequest, MessageHeaders messageHeaders) {
+    public void makeRetryCall(MyMessageBody messageRequest, MessageHeaders messageHeaders) {
         Long message_timestamp = getmessage_timestamp(messageHeaders);
         long currentTimestamp = System.currentTimeMillis();
         if (itHasBeen(tenSeconds, message_timestamp, currentTimestamp)) {
@@ -60,7 +61,7 @@ public class MyServiceWithRetry {
         return (Long) messageHeaders.get("message_timestamp");
     }
 
-    private void callWithHeaders(byte[] messageRequest, MessageHeaders messageHeaders) {
+    private void callWithHeaders(MyMessageBody messageRequest, MessageHeaders messageHeaders) {
         MessageHeaders updatedMessageHeaders = resetHeaders(messageHeaders);
         RestTemplate restTemplate = new RestTemplate();
         try {

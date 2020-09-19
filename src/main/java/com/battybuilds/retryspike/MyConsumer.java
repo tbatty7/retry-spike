@@ -1,7 +1,9 @@
 package com.battybuilds.retryspike;
 
+import com.battybuilds.retryspike.model.MyMessageBody;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 
@@ -16,11 +18,12 @@ public class MyConsumer {
     }
 
     @StreamListener(MyMessageChannels.INITIAL_INPUT)
-    public void receiveInitialMessage(byte[] messageRequest, @Headers MessageHeaders headers) {
+    public void receiveInitialMessage(Message<MyMessageBody> messageRequest, @Headers MessageHeaders headers) {
         System.out.println("-------------------------------------------");
-        System.out.println(new String(messageRequest));
+        MyMessageBody payload = messageRequest.getPayload();
+        System.out.println(payload);
         System.out.println(headers);
         System.out.println("-------------------------------------------");
-        serviceWithRetry.makeInitialExternalCall(messageRequest);
+        serviceWithRetry.makeInitialExternalCall(payload);
     }
 }
