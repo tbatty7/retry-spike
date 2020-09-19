@@ -28,9 +28,14 @@ public class MyServiceWithRetry {
         callWithHeaders(messageRequest, buildInitialMessageHeaders());
     }
 
-    public void retryCall(byte[] messageRequest, MessageHeaders messageHeaders) {
+    public void makeRetryCall(byte[] messageRequest, MessageHeaders messageHeaders) {
         Long initial_timestamp = getInitial_timestamp(messageHeaders);
+        Integer times_called = getTimes_called(messageHeaders);
         long currentTimestamp = System.currentTimeMillis();
+        if (times_called > 16) {
+            //publish to mongo
+            return;
+        }
         if (itHasBeen(tenSeconds, initial_timestamp, currentTimestamp)) {
             System.out.println(new Date(initial_timestamp).toString());
             callWithHeaders(messageRequest, messageHeaders);
