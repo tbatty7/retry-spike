@@ -22,13 +22,4 @@ public interface MyMessageChannels {
 
     @Input(PULL_RETRY)
     MessageChannel pullRetry();
-
-    // public interface TripChannel {
-    //
-    //    String INPUT = "loyalty-trip-in";
-    //
-    //    @Input(INPUT)
-    //    MessageChannel inbound();
-    //}
-
 }

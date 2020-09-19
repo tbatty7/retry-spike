@@ -18,7 +18,7 @@ public class RetryConsumer {
 
     @StreamListener(MyMessageChannels.PULL_RETRY)
     public void initiateRetry(byte[] message, @Headers MessageHeaders headers) {
-//        System.out.println("-------------counter----------- " + counter++);
+        System.out.println("-------------counter----------- " + counter++);
         retryService.retryCall(message, headers);
     }
 }

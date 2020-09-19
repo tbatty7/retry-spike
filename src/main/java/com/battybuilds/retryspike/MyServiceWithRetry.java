@@ -1,6 +1,5 @@
 package com.battybuilds.retryspike;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessageHeaders;
@@ -36,12 +35,16 @@ public class MyServiceWithRetry {
             System.out.println(new Date(initial_timestamp).toString());
             callWithHeaders(messageRequest, messageHeaders);
         } else {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            pauseForMilliseconds(1000);
             messageChannels.retry().send(MessageBuilder.createMessage(messageRequest, messageHeaders));
+        }
+    }
+
+    private void pauseForMilliseconds(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -50,9 +53,7 @@ public class MyServiceWithRetry {
     }
 
     private Integer getTimes_called(MessageHeaders messageHeaders) {
-        Integer times_called = (Integer) messageHeaders.get("times_called");
-        System.out.println("Times called: " + times_called);
-        return times_called;
+        return (Integer) messageHeaders.get("times_called");
     }
 
     private Long getInitial_timestamp(MessageHeaders messageHeaders) {
@@ -65,6 +66,7 @@ public class MyServiceWithRetry {
         try {
             ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:8099/endpoint", String.class);
             System.out.println("***************Call worked with " + responseEntity.getStatusCode());
+            System.out.println(responseEntity.getBody());
         } catch (HttpServerErrorException e) {
             System.out.println("-----------Call Failed--------");
             System.out.println("ResponseBody____________" + e.getResponseBodyAsString());
@@ -76,6 +78,7 @@ public class MyServiceWithRetry {
     private MessageHeaders resetHeaders(MessageHeaders messageHeaders) {
         Integer times_called = getTimes_called(messageHeaders);
         times_called++;
+        System.out.println("Times called: " + times_called);
         return buildMessageHeaders(times_called);
     }
 
