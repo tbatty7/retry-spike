@@ -29,15 +29,10 @@ public class MyServiceWithRetry {
     }
 
     public void makeRetryCall(byte[] messageRequest, MessageHeaders messageHeaders) {
-        Long initial_timestamp = getInitial_timestamp(messageHeaders);
-        Integer times_called = getTimes_called(messageHeaders);
+        Long message_timestamp = getmessage_timestamp(messageHeaders);
         long currentTimestamp = System.currentTimeMillis();
-        if (times_called > 16) {
-            //publish to mongo
-            return;
-        }
-        if (itHasBeen(tenSeconds, initial_timestamp, currentTimestamp)) {
-            System.out.println(new Date(initial_timestamp).toString());
+        if (itHasBeen(tenSeconds, message_timestamp, currentTimestamp)) {
+            System.out.println(new Date(message_timestamp).toString());
             callWithHeaders(messageRequest, messageHeaders);
         } else {
             pauseForMilliseconds(1000);
@@ -53,16 +48,16 @@ public class MyServiceWithRetry {
         }
     }
 
-    boolean itHasBeen(int tenSeconds, Long initial_timestamp, long currentTimestamp) {
-        return initial_timestamp + tenSeconds < currentTimestamp;
+    boolean itHasBeen(int tenSeconds, Long message_timestamp, long currentTimestamp) {
+        return message_timestamp + tenSeconds < currentTimestamp;
     }
 
     private Integer getTimes_called(MessageHeaders messageHeaders) {
         return (Integer) messageHeaders.get("times_called");
     }
 
-    private Long getInitial_timestamp(MessageHeaders messageHeaders) {
-        return (Long) messageHeaders.get("initial_timestamp");
+    private Long getmessage_timestamp(MessageHeaders messageHeaders) {
+        return (Long) messageHeaders.get("message_timestamp");
     }
 
     private void callWithHeaders(byte[] messageRequest, MessageHeaders messageHeaders) {
@@ -95,7 +90,7 @@ public class MyServiceWithRetry {
     private MessageHeaders buildMessageHeaders(int timesCalled) {
         HashMap<String, Object> headers = new HashMap<>();
         headers.put("times_called", timesCalled);
-        headers.put("initial_timestamp", System.currentTimeMillis());
+        headers.put("message_timestamp", System.currentTimeMillis());
         return new MessageHeaders(headers);
     }
 }

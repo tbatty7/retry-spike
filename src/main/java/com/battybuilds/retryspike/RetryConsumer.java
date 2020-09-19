@@ -15,9 +15,15 @@ public class RetryConsumer {
         this.retryService = retryService;
     }
 
-    @StreamListener(MyMessageChannels.PULL_RETRY)
+    @StreamListener(target = MyMessageChannels.PULL_RETRY, condition = "headers['times_called'] < 3")
     public void initiateRetry(byte[] message, @Headers MessageHeaders headers) {
         System.out.println("-------------counter----------- " + counter++);
         retryService.makeRetryCall(message, headers);
+    }
+
+    @StreamListener(target = MyMessageChannels.PULL_RETRY, condition = "headers['times_called'] > 2")
+    public void sendToMongo(byte[] message) {
+        System.out.println("Message sent to Mongo!");
+        //send to Mongo
     }
 }
